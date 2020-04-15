@@ -114,19 +114,11 @@ class Post {
         }
 
         if highlightWithPygments {
-            rawBody = rawBody.pygmentize()
-        }
-        
-        do {
-            body = try Down(markdownString: rawBody).toHTML(.unsafe)
-        } catch {
-            fatalError("Could not parse markdown body for \(title ?? "")")
-        }
-        
-        do {
-            excerpt = try Down(markdownString: rawExcerpt).toHTML(.unsafe)
-        } catch {
-            fatalError("Could not parse markdown excerpt for \(title ?? "")")
+            body = rawBody.pygmentizeDown(identifier: "Body for \"" + (title ?? "Unkown") + "\"")
+            excerpt = rawExcerpt.pygmentizeDown(identifier: "Excerpt for \"" + (title ?? "Unkown") + "\"")
+        } else {
+            body = rawBody.down(identifier: "Body for \"" + (title ?? "Unkown") + "\"")
+            excerpt = rawExcerpt.down(identifier: "Excerpt for \"" + (title ?? "Unkown") + "\"")
         }
     }
     
