@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C60E1168243E562600844CDA /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60E1167243E562600844CDA /* Template.swift */; };
 		C644842F243FC99F00055535 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = C644842E243FC99F00055535 /* Down */; };
+		C654B8EA2447C99700654EFD /* Pygments.swift in Sources */ = {isa = PBXBuildFile; fileRef = C654B8E92447C99700654EFD /* Pygments.swift */; };
 		C668E06E24453A4F00A61D9F /* roland in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6AC951F243C0D3A00B2050E /* roland */; };
 		C68259332440FA5000796048 /* Archive.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68259322440FA5000796048 /* Archive.swift */; };
 		C68BB9D4243FBC41003B8DF0 /* LayoutPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68BB9D3243FBC41003B8DF0 /* LayoutPost.swift */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		C60E1167243E562600844CDA /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
+		C654B8E92447C99700654EFD /* Pygments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pygments.swift; sourceTree = "<group>"; };
 		C68259322440FA5000796048 /* Archive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archive.swift; sourceTree = "<group>"; };
 		C68BB9D3243FBC41003B8DF0 /* LayoutPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutPost.swift; sourceTree = "<group>"; };
 		C68BB9D5243FBC4E003B8DF0 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
@@ -72,6 +74,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C654B8E82447C98100654EFD /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				C6DD04CC243CEE3900D6B8B7 /* Extensions.swift */,
+				C654B8E92447C99700654EFD /* Pygments.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		C68BB9D1243FB244003B8DF0 /* Objects */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,7 +132,7 @@
 				C6AC9522243C0D3A00B2050E /* main.swift */,
 				C68BB9D1243FB244003B8DF0 /* Objects */,
 				C68BB9D2243FB25B003B8DF0 /* Layouts */,
-				C6DD04CC243CEE3900D6B8B7 /* Extensions.swift */,
+				C654B8E82447C98100654EFD /* Extensions */,
 			);
 			path = roland;
 			sourceTree = "<group>";
@@ -192,6 +203,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C654B8EA2447C99700654EFD /* Pygments.swift in Sources */,
 				C6AC9523243C0D3A00B2050E /* main.swift in Sources */,
 				C6DD04CD243CEE3900D6B8B7 /* Extensions.swift in Sources */,
 				C68BB9D8243FBD47003B8DF0 /* LayoutPage.swift in Sources */,

@@ -26,6 +26,8 @@ class Post {
     
     var body: String = ""
     var excerpt: String = ""
+    
+    var highlightWithPygments = false
 
     var permalink: String {
         let df = DateFormatter()
@@ -111,6 +113,10 @@ class Post {
             }
         }
 
+        if highlightWithPygments {
+            rawBody = rawBody.pygmentize()
+        }
+        
         do {
             body = try Down(markdownString: rawBody).toHTML(.unsafe)
         } catch {
@@ -148,6 +154,11 @@ class Post {
                 return
             }
 
+            if key == "pygments", let val = keyVal.1 {
+                highlightWithPygments = (val.trimmingCharacters(in: .whitespacesAndNewlines) == "true")
+                return
+            }
+            
             categories.removeAll()
             if key == "categories", let val = keyVal.1 {
                 let categoriesStr = val.trimmingCharacters(in: .whitespacesAndNewlines)
