@@ -35,7 +35,7 @@ class Page {
     var permalink: String {
         let trimmedPath = path.replacingOccurrences(of: "index.html", with: "").replacingOccurrences(of: "index.php", with: "")
         if let baseURL = URL(string: website.baseURLStr) {
-            return baseURL.appendingPathComponent(trimmedPath).absoluteString + "/"
+            return baseURL.appendingPathComponent(trimmedPath).absoluteString
         } else {
             fatalError("nil baseURLStr not yet supported")
         }
