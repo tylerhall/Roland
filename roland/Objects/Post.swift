@@ -56,6 +56,10 @@ class Post {
         context["content"] = body
         context["categories"] = categories
 
+        for (key, value) in other {
+            context[key] = value
+        }
+
         return context
     }
 

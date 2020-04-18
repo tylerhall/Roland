@@ -21,6 +21,10 @@ class Page {
         context["title"] = title
         context["path"] = path
         context["permalink"] = permalink
+        
+        for (key, value) in other {
+            context[key] = value
+        }
 
         let down = Down(markdownString: body)
         context["content"] = try? down.toHTML(.unsafe)
