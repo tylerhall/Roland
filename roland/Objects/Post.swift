@@ -152,8 +152,8 @@ class Post {
                 return
             }
 
-            categories.removeAll()
             if key == "categories", let val = keyVal.1 {
+                categories.removeAll()
                 let categoriesStr = val.trimmingCharacters(in: .whitespacesAndNewlines)
                 let categoryNamesArray = categoriesStr.components(separatedBy: ",")
                 for name in categoryNamesArray {
