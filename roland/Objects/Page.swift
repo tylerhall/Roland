@@ -16,19 +16,21 @@ class Page {
     var other = [String: String]()
     var templateName = "page"
 
+    private var rawBody = ""
+
+    var highlightWithPygments = false
+
     var context: [String: Any?] {
         var context = [String: Any?]()
         context["title"] = title
         context["path"] = path
         context["permalink"] = permalink
-        
+        context["content"] = body
+
         for (key, value) in other {
             context[key] = value
         }
 
-        let down = Down(markdownString: body)
-        context["content"] = try? down.toHTML(.unsafe)
-        
         return context
     }
     
@@ -62,12 +64,19 @@ class Page {
 
         while lines.count > 0 {
             let line = lines.remove(at: 0)
-            body = "\(body)\n\(line)"
+            rawBody = "\(rawBody)\n\(line)"
         }
         
         if path.count == 0 {
             fatalError("Page missing path key")
         }
+        
+        if highlightWithPygments {
+            body = rawBody.pygmentizeDown(identifier: "Body for \"" + (title ?? "Unkown") + "\"")
+        } else {
+            body = rawBody.down(identifier: "Body for \"" + (title ?? "Unkown") + "\"")
+        }
+
     }
     
     func assignFrontMatterKeyVal(keyVal: (String?, String?)) {
@@ -84,6 +93,11 @@ class Page {
 
             if key == "template", let val = keyVal.1 {
                 templateName = val.trimmingCharacters(in: .whitespacesAndNewlines)
+                return
+            }
+            
+            if key == "pygments", let val = keyVal.1 {
+                highlightWithPygments = (val.trimmingCharacters(in: .whitespacesAndNewlines) == "true")
                 return
             }
 
