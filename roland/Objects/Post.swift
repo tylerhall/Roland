@@ -57,11 +57,9 @@ class Post {
         context["content"] = body
         context["categories"] = categories
 
-        var arr = [[String: Any]]()
-        for rp in relatedPosts {
-            arr.append(rp.context)
+        if website.calculateRelatedPosts {
+            context["related_posts"] = relatedPosts.compactMap { $0.context }
         }
-        context["related_posts"] = arr
 
         for (key, value) in other {
             context[key] = value
@@ -198,6 +196,14 @@ class Post {
     }
 
     lazy var relatedPosts: [RelatedPost] = {
+        
+        // Play with these numbers to figure out what works best for your content.
+        let commonScoreMultiplier: Double = 2
+        let commonCategoryMultiplier = 75
+        // NOTE: This has a *gigantic* impact on run time. 3 is currently my maximum.
+        // I haven't yet looked into what stupid Big-Oh thing I'm doing to cause this.
+        let maxRelatedPostsToReturn = 3
+
         guard let hash = rawBodyHash, let vocab = website.vocabularies[hash], vocab.count > 0 else {
             return []
         }
@@ -213,7 +219,7 @@ class Post {
             if let hash = postToCompare.rawBodyHash, let vocabToCompare = website.vocabularies[hash], vocabToCompare.count > 0 {
                 let commonWordsCount = vocab.intersection(vocabToCompare).count
                 let scoreRatio = Double(commonWordsCount) / max(Double(vocabToCompare.count), Double(vocab.count))
-                let commonScore = Double(vocab.count + vocabToCompare.count) * scoreRatio
+                let commonScore = Double(vocab.count + vocabToCompare.count) * scoreRatio * commonScoreMultiplier
                 scoreSum += commonScore
             }
 
@@ -221,7 +227,7 @@ class Post {
             let setB = Set(postToCompare.categories)
             let commonCategoryCount = setA.intersection(setB).count
 
-            scoreSum += Double(commonCategoryCount * 10)
+            scoreSum += Double(commonCategoryCount * commonCategoryMultiplier)
 
             let relatedPost = RelatedPost(postID: postToCompare.id, score: scoreSum)
             relatedPosts.append(relatedPost)
@@ -244,14 +250,16 @@ class Post {
             return a.stdDevRatio! > b.stdDevRatio!
         }
 
-        // Normalize those scores between 0 and 1...
+        // Normalize those scores between 0 and 1.
+        // This gives the PHP template side of things a way to enforce
+        // a relevancy cutoff...
         if let max = relatedPosts.first?.stdDevRatio {
             for i in 0..<relatedPosts.count {
                 relatedPosts[i].normalizedScore = relatedPosts[i].stdDevRatio! / max
             }
         }
 
-        return Array(relatedPosts.prefix(3))
+        return Array(relatedPosts.prefix(maxRelatedPostsToReturn))
     }()
 }
 

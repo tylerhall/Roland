@@ -25,6 +25,8 @@ class Website {
         case DateGroups = "date_groups"
 
         case Posts = "posts"
+        
+        case CalculateRelatedPosts = "related_posts"
     }
 
     // Making this lazy because it's too expensive to otherwise call very frequently.
@@ -78,6 +80,7 @@ class Website {
     var usePostExcerpts = true
     var postsPerPage = 10
     var plistContext = [String: String]()
+    var calculateRelatedPosts = false
 
     var templateDirURL: URL {
         return projectDirURL.appendingPathComponent("_templates")
@@ -205,6 +208,10 @@ class Website {
 
         if let val = dict[ConfigKey.PostsPerPage.rawValue] as? NSNumber {
             postsPerPage = val.intValue
+        }
+
+        if let val = dict[ConfigKey.CalculateRelatedPosts.rawValue] as? Bool {
+            calculateRelatedPosts = val
         }
     }
 

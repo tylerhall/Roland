@@ -61,7 +61,9 @@ website.loadAllPages()
 website.loadAllPosts()
 website.loadAllArchives()
 
-website.loadVocabularies()
+if website.calculateRelatedPosts {
+    website.loadVocabularies()
+}
 
 if !options.noClean {
     website.cleanWebsiteOutputDirectory()
