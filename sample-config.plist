@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>base_url</key>
+	<string>https://domain.com</string>
+	<key>posts_per_page</key>
+	<integer>10</integer>
+	<key>show_post_excerpts</key>
+	<true/>
+	<key>post_url_prefix</key>
+	<string></string>
+	<key>archive_url_prefix</key>
+	<string>page</string>
+	<key>category_url_prefix</key>
+	<string>category</string>
+	<key>related_posts</key>
+	<false/>
+	<key>Context</key>
+	<dict>
+		<key>cdn</key>
+		<string>https://cdn.domain.com</string>
+		<key>title</key>
+		<string>Your Blog</string>
+		<key>post_title_suffix</key>
+		<string> - My Blog</string>
+		<key>default_post_author</key>
+		<string>Tim Apple</string>
+		<key>rss_title</key>
+		<string>My Blog</string>
+		<key>rss_description</key>
+		<string>Posts from My Blog</string>
+		<key>rss_language_code</key>
+		<string>en-US</string>
+	</dict>
+</dict>
+</plist>
