@@ -104,6 +104,8 @@ class Website {
     var newestPostIDs = [Int]()
     
     var archives = [Archive]()
+    
+    var vocabularies = [String: Set<String>]()
 
     // TODO: This needs to be refactored to allow grouping by timeframes other than months.
     lazy var dateGroups: [[String: Any]] = {
@@ -210,7 +212,7 @@ class Website {
         guard postsDirURL.isAccessibleDirectory else { print("WARNING: Posts directory is not readable: \(postsDirURL.path)"); return }
 
         allPosts.removeAll()
-        
+
         var postID = 0
         let files = try! FileManager.default.contentsOfDirectory(at: postsDirURL, includingPropertiesForKeys: nil, options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
         for fileURL in files {
@@ -218,7 +220,7 @@ class Website {
                 fatalError("WARNING: \(fileURL.path) is not accessible")
                 continue
             }
-            
+
             do {
                 let fileContents = try String(contentsOf: fileURL)
                 let post = Post(fileContents: fileContents, id: postID, website: self)
@@ -308,6 +310,38 @@ class Website {
             currentPageNum += 1
             currentPostNum += postsPerPage
         }
+    }
+
+    func loadVocabularies() {
+        let vocabURL = URL(fileURLWithPath: "vocab.json")
+
+        var vocabulariesDict = [String: [String]]()
+        if let vocabFileData = try? Data(contentsOf: vocabURL) {
+            if let dict = try? JSONSerialization.jsonObject(with: vocabFileData, options: []) as? [String: [String]] {
+                vocabulariesDict = dict
+            }
+        }
+
+        vocabularies = [String: Set<String>]()
+        for (hash, words) in vocabulariesDict {
+            let wordSet = Set(words.map { $0 })
+            vocabularies[hash] = wordSet
+        }
+
+        for (_, post) in allPosts {
+            if let hash = post.rawBodyHash, vocabulariesDict[hash] == nil {
+                print("Generating vocabulary for: \(post.title ?? "Unitled Post")")
+                vocabularies[hash] = post.generateVocabulary()
+            }
+        }
+        
+        var jsonOut = [String: Any]()
+        for (hash, vocab) in vocabularies {
+            jsonOut[hash] = Array(vocab)
+        }
+
+        let jsonDataOut = try? JSONSerialization.data(withJSONObject: jsonOut, options: .prettyPrinted)
+        try? jsonDataOut?.write(to: vocabURL)
     }
 
     func cleanWebsiteOutputDirectory() {

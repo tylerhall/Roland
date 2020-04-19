@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C60E1168243E562600844CDA /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60E1167243E562600844CDA /* Template.swift */; };
+		C62345AE244B8E04009FDEDA /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C62345AD244B8E04009FDEDA /* CoreML.framework */; };
 		C644842F243FC99F00055535 /* Down in Frameworks */ = {isa = PBXBuildFile; productRef = C644842E243FC99F00055535 /* Down */; };
 		C654B8EA2447C99700654EFD /* Pygments.swift in Sources */ = {isa = PBXBuildFile; fileRef = C654B8E92447C99700654EFD /* Pygments.swift */; };
 		C668E06E24453A4F00A61D9F /* roland in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6AC951F243C0D3A00B2050E /* roland */; };
@@ -43,6 +44,7 @@
 
 /* Begin PBXFileReference section */
 		C60E1167243E562600844CDA /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
+		C62345AD244B8E04009FDEDA /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
 		C654B8E92447C99700654EFD /* Pygments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pygments.swift; sourceTree = "<group>"; };
 		C68259322440FA5000796048 /* Archive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archive.swift; sourceTree = "<group>"; };
 		C68BB9D3243FBC41003B8DF0 /* LayoutPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutPost.swift; sourceTree = "<group>"; };
@@ -66,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C62345AE244B8E04009FDEDA /* CoreML.framework in Frameworks */,
 				C6EEA3AB2440AC1A000F4EA7 /* ArgumentParser in Frameworks */,
 				C644842F243FC99F00055535 /* Down in Frameworks */,
 			);
@@ -74,6 +77,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C62345AC244B8E04009FDEDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C62345AD244B8E04009FDEDA /* CoreML.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C654B8E82447C98100654EFD /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +126,7 @@
 			children = (
 				C6AC9521243C0D3A00B2050E /* roland */,
 				C6AC9520243C0D3A00B2050E /* Products */,
+				C62345AC244B8E04009FDEDA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};

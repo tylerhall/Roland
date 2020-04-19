@@ -5,6 +5,7 @@
 
 import Foundation
 import Down
+import NaturalLanguage
 
 class Post {
 
@@ -18,6 +19,7 @@ class Post {
     var other = [String: String]()
     var templateName = "post"
     
+    var rawBodyHash: String?
     private var rawBody = ""
     private var rawExcerpt = ""
 
@@ -55,6 +57,7 @@ class Post {
         context["next_post_id"] = nextPostID
         context["content"] = body
         context["categories"] = categories
+        context["related_posts"] = relatedPosts
 
         for (key, value) in other {
             context[key] = value
@@ -116,6 +119,7 @@ class Post {
                 rawBody = "\(rawBody)\n\(line)"
             }
         }
+        rawBodyHash = rawBody.md5
 
         if highlightWithPygments {
             body = rawBody.pygmentizeDown(identifier: "Body for \"" + (title ?? "Unkown") + "\"")
@@ -169,5 +173,75 @@ class Post {
 
             other[key] = keyVal.1?.trimmingCharacters(in: .whitespacesAndNewlines)
         }
+    }
+
+    func generateVocabulary() -> Set<String> {
+        var vocab = Set<String>()
+        let tagger = NSLinguisticTagger(tagSchemes: [.tokenType], options: 0)
+        tagger.string = body
+        
+        let range = NSRange(location: 0, length: body.utf16.count)
+        let options: NSLinguisticTagger.Options = [.omitPunctuation, .omitWhitespace]
+        tagger.enumerateTags(in: range, unit: .word, scheme: .tokenType, options: options) { _, tokenRange, _ in
+            let word = (body as NSString).substring(with: tokenRange).lowercased()
+            let lemmas = word.lemmatize()
+            for lemma in lemmas {
+                vocab.insert(lemma)
+            }
+        }
+
+        return vocab
+    }
+
+    lazy var relatedPosts: [[String: Any]] = {
+        guard let hash = rawBodyHash, let vocab = website.vocabularies[hash], vocab.count > 0 else {
+            return []
+        }
+
+        var counts = [Int: Int]()
+        for (index, postToCompare) in website.allPosts {
+            if id == postToCompare.id {
+                continue
+            }
+
+            var vocabToCompare: Set<String>?
+            if let hash = postToCompare.rawBodyHash, let v = website.vocabularies[hash] {
+                vocabToCompare = v
+            }
+
+            if let vocabToCompare = vocabToCompare, vocabToCompare.count > 0 {
+                let intersection = vocab.intersection(vocabToCompare)
+                counts[index] = intersection.count
+            }
+        }
+        
+        let sorted = counts.sorted { (a, b) -> Bool in
+            return a.value > b.value
+        }
+
+        var relatedPosts = [[String: Any]]()
+        for (index, count) in sorted.prefix(3) {
+            relatedPosts.append(["id": index, "score": Double(count) / Double(vocab.count)])
+        }
+
+        return relatedPosts
+    }()
+}
+
+extension String {
+    func lemmatize() -> [String] {
+        let tagger = NSLinguisticTagger(tagSchemes: [.lemma], options: 0)
+        tagger.string = self
+        let range = NSMakeRange(0, self.utf16.count)
+        let options: NSLinguisticTagger.Options = [.omitWhitespace, .omitPunctuation]
+
+        var results = [String]()
+        tagger.enumerateTags(in: range, unit: .word, scheme: .lemma, options: options) { (tag, tokenRange, stop) in
+            if let lemma = tag?.rawValue {
+                results.append(lemma)
+            }
+        }
+
+        return (results.count > 0) ? [self] : results
     }
 }
