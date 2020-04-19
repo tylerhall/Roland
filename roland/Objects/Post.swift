@@ -5,7 +5,6 @@
 
 import Foundation
 import Down
-import NaturalLanguage
 
 class Post {
 
@@ -57,7 +56,12 @@ class Post {
         context["next_post_id"] = nextPostID
         context["content"] = body
         context["categories"] = categories
-        context["related_posts"] = relatedPosts
+
+        var arr = [[String: Any]]()
+        for rp in relatedPosts {
+            arr.append(rp.context)
+        }
+        context["related_posts"] = arr
 
         for (key, value) in other {
             context[key] = value
@@ -193,55 +197,71 @@ class Post {
         return vocab
     }
 
-    lazy var relatedPosts: [[String: Any]] = {
+    lazy var relatedPosts: [RelatedPost] = {
         guard let hash = rawBodyHash, let vocab = website.vocabularies[hash], vocab.count > 0 else {
             return []
         }
 
-        var counts = [Int: Int]()
+        var relatedPosts = [RelatedPost]()
         for (index, postToCompare) in website.allPosts {
             if id == postToCompare.id {
                 continue
             }
+            
+            var scoreSum: Double = 0
 
-            var vocabToCompare: Set<String>?
-            if let hash = postToCompare.rawBodyHash, let v = website.vocabularies[hash] {
-                vocabToCompare = v
+            if let hash = postToCompare.rawBodyHash, let vocabToCompare = website.vocabularies[hash], vocabToCompare.count > 0 {
+                let commonWordsCount = vocab.intersection(vocabToCompare).count
+                let scoreRatio = Double(commonWordsCount) / max(Double(vocabToCompare.count), Double(vocab.count))
+                let commonScore = Double(vocab.count + vocabToCompare.count) * scoreRatio
+                scoreSum += commonScore
             }
 
-            if let vocabToCompare = vocabToCompare, vocabToCompare.count > 0 {
-                let intersection = vocab.intersection(vocabToCompare)
-                counts[index] = intersection.count
+            let setA = Set(categories)
+            let setB = Set(postToCompare.categories)
+            let commonCategoryCount = setA.intersection(setB).count
+
+            scoreSum += Double(commonCategoryCount * 10)
+
+            let relatedPost = RelatedPost(postID: postToCompare.id, score: scoreSum)
+            relatedPosts.append(relatedPost)
+        }
+
+        // Calculate standard deviation of scores...
+        let scores = relatedPosts.compactMap { return $0.score }
+        let length = Double(scores.count)
+        let avg = scores.reduce(0, {$0 + $1}) / length
+        let sumOfSquaredAvgDiff = scores.map { pow($0 - avg, 2.0)}.reduce(0, {$0 + $1})
+        let stdDev = sqrt(sumOfSquaredAvgDiff / length)
+
+        // Calculate how each score compares to stddev...
+        for i in 0..<relatedPosts.count {
+            relatedPosts[i].stdDevRatio = relatedPosts[i].score / stdDev
+        }
+
+        // Sore by that ratio...
+        relatedPosts.sort { (a, b) -> Bool in
+            return a.stdDevRatio! > b.stdDevRatio!
+        }
+
+        // Normalize those scores between 0 and 1...
+        if let max = relatedPosts.first?.stdDevRatio {
+            for i in 0..<relatedPosts.count {
+                relatedPosts[i].normalizedScore = relatedPosts[i].stdDevRatio! / max
             }
         }
-        
-        let sorted = counts.sorted { (a, b) -> Bool in
-            return a.value > b.value
-        }
 
-        var relatedPosts = [[String: Any]]()
-        for (index, count) in sorted.prefix(3) {
-            relatedPosts.append(["id": index, "score": Double(count) / Double(vocab.count)])
-        }
-
-        return relatedPosts
+        return Array(relatedPosts.prefix(3))
     }()
 }
 
-extension String {
-    func lemmatize() -> [String] {
-        let tagger = NSLinguisticTagger(tagSchemes: [.lemma], options: 0)
-        tagger.string = self
-        let range = NSMakeRange(0, self.utf16.count)
-        let options: NSLinguisticTagger.Options = [.omitWhitespace, .omitPunctuation]
+struct RelatedPost {
+    var postID: Int
+    var score: Double
+    var stdDevRatio: Double?
+    var normalizedScore: Double?
 
-        var results = [String]()
-        tagger.enumerateTags(in: range, unit: .word, scheme: .lemma, options: options) { (tag, tokenRange, stop) in
-            if let lemma = tag?.rawValue {
-                results.append(lemma)
-            }
-        }
-
-        return (results.count > 0) ? [self] : results
+    var context: [String: Any?] {
+        return ["id": postID, "score": normalizedScore]
     }
 }

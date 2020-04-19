@@ -4,9 +4,27 @@
 //
 
 import Foundation
+import NaturalLanguage
 import CommonCrypto
 
 extension String {
+
+    func lemmatize() -> [String] {
+        let tagger = NSLinguisticTagger(tagSchemes: [.lemma], options: 0)
+        tagger.string = self
+        let range = NSMakeRange(0, self.utf16.count)
+        let options: NSLinguisticTagger.Options = [.omitWhitespace, .omitPunctuation]
+
+        var results = [String]()
+        tagger.enumerateTags(in: range, unit: .word, scheme: .lemma, options: options) { (tag, tokenRange, stop) in
+            if let lemma = tag?.rawValue {
+                results.append(lemma)
+            }
+        }
+
+        return (results.count > 0) ? [self] : results
+    }
+
     var md5: String {
         let data = Data(self.utf8)
         let hash = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
