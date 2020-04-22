@@ -29,6 +29,8 @@ class Post {
     
     var highlightWithPygments = false
 
+    var manuallyRelatedURLs = [String]()
+
     var permalink: String {
         let df = DateFormatter()
         df.dateFormat = website.postURLPrefix
@@ -56,9 +58,16 @@ class Post {
         context["content"] = body
         context["categories"] = categories
 
-        if website.calculateRelatedPosts {
-            context["related_posts"] = relatedPosts.compactMap { $0.context }
+        var related = [[String: Any?]]()
+        for post in manuallyRelatedPosts {
+            related.append(["id": post.id, "score": 10000])
         }
+        if website.calculateRelatedPosts {
+            for post in relatedPosts {
+                related.append(post.context)
+            }
+        }
+        context["related_posts"] = related
 
         for (key, value) in other {
             context[key] = value
@@ -171,6 +180,12 @@ class Post {
                 }
                 return
             }
+            
+            if key == "related_post", let val = keyVal.1 {
+                let url = val.trimmingCharacters(in: .whitespacesAndNewlines)
+                manuallyRelatedURLs.append(url)
+                return
+            }
 
             other[key] = keyVal.1?.trimmingCharacters(in: .whitespacesAndNewlines)
         }
@@ -193,6 +208,27 @@ class Post {
 
         return vocab
     }
+
+    lazy var manuallyRelatedPosts: [Post] = {
+        var relatedPosts = [Post]()
+        
+        for urlStr in manuallyRelatedURLs {
+            var theURL = urlStr
+            if !theURL.hasPrefix("http://") && !theURL.hasPrefix("https://") {
+                theURL = website.baseURLStr + urlStr
+            }
+            
+            _ = website.allPosts.first(where: { (el) -> Bool in
+                if el.value.permalink == theURL {
+                    relatedPosts.append(el.value)
+                    return true
+                }
+                return false
+            })
+        }
+
+        return relatedPosts
+    }()
 
     lazy var relatedPosts: [RelatedPost] = {
         
@@ -267,6 +303,7 @@ struct RelatedPost {
     var score: Double
     var stdDevRatio: Double?
     var normalizedScore: Double?
+    var isManual = false
 
     var context: [String: Any?] {
         return ["id": postID, "score": normalizedScore]
