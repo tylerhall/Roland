@@ -10,7 +10,7 @@ import Foundation
 import Down
 
 extension String {
-    
+
     func down(identifier: String? = nil) -> String {
         do {
             return try Down(markdownString: self).toHTML(.unsafe)
@@ -75,9 +75,7 @@ extension String {
         let stdin = Pipe()
         let stdout = Pipe()
 
-        // TODO: We need to auto-detect where pygmentize is in the user's $PATH,
-        // or maybe allow them to explicitly define the location themselves.
-        task.launchPath = "/usr/local/bin/pygmentize"
+        task.launchPath = Website.pygmentizePath
         task.arguments = ["-f", "html", "-O", "style=colorful", "-l", language]
         task.standardInput = stdin
         task.standardOutput = stdout

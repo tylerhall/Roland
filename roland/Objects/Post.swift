@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import Down
 
 class Post {
 

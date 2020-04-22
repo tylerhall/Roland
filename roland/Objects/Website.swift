@@ -9,24 +9,20 @@ class Website {
     
     // These string values are ugly on purpose so they fit
     // better with PHP's naming conventions.
-    enum ConfigKey: String {
+    enum Config: String {
         case BaseURL = "base_url"
-
         case PostURLPrefix = "post_url_prefix"
         case ArchiveURLPrefix = "archive_url_prefix"
         case CategoryURLPrefix = "category_url_prefix"
-        
         case ShowPostExcerpts = "show_post_excerpts"
         case PostsPerPage = "posts_per_page"
-        
         case Categories = "categories"
         case CategoriesByName = "categories_by_name"
-
         case DateGroups = "date_groups"
-
         case Posts = "posts"
-        
         case CalculateRelatedPosts = "related_posts"
+        case PHPPath = "php"
+        case PygmentizePath = "pygmentize"
     }
 
     // Making this lazy because it's too expensive to otherwise call very frequently.
@@ -38,36 +34,39 @@ class Website {
             context[k] = plistContext[k]
         }
  
-        context[ConfigKey.BaseURL.rawValue] = baseURLStr
-        context[ConfigKey.ShowPostExcerpts.rawValue] = usePostExcerpts
-        context[ConfigKey.PostsPerPage.rawValue] = postsPerPage
-        context[ConfigKey.PostURLPrefix.rawValue] = postURLPrefix
-        context[ConfigKey.CategoryURLPrefix.rawValue] = categoryURLPrefix
-        context[ConfigKey.DateGroups.rawValue] = dateGroups
-        context[ConfigKey.ArchiveURLPrefix.rawValue] = archiveURLPrefix
+        context[Config.BaseURL.rawValue] = baseURLStr
+        context[Config.ShowPostExcerpts.rawValue] = usePostExcerpts
+        context[Config.PostsPerPage.rawValue] = postsPerPage
+        context[Config.PostURLPrefix.rawValue] = postURLPrefix
+        context[Config.CategoryURLPrefix.rawValue] = categoryURLPrefix
+        context[Config.DateGroups.rawValue] = dateGroups
+        context[Config.ArchiveURLPrefix.rawValue] = archiveURLPrefix
 
         var postContexts = [String: [String: Any?]]()
         for p in allPosts.values {
             postContexts["\(p.id)"] = p.context
         }
-        context[ConfigKey.Posts.rawValue] = postContexts
+        context[Config.Posts.rawValue] = postContexts
 
         var categoryContexts = [[String: Any?]]()
         for c in topLevelCategories {
             categoryContexts.append(c.context)
         }
-        context[ConfigKey.Categories.rawValue] = categoryContexts
+        context[Config.Categories.rawValue] = categoryContexts
         
         var categoriesByName = [String: [String: Any?]]()
         for c in categories.values {
             categoriesByName[c.name] = c.context
         }
-        context[ConfigKey.CategoriesByName.rawValue] = categoriesByName
+        context[Config.CategoriesByName.rawValue] = categoriesByName
 
         return context
     }()
-    
+
     static let frontMatterDateFormat = "yyyy-MM-dd HH:mm:ss"
+    
+    static var phpPath = "/usr/bin/php"
+    static var pygmentizePath = "/usr/local/bin/pygmentize"
 
     var plistURL: URL!
     var projectDirURL: URL!
@@ -186,32 +185,40 @@ class Website {
 
         plistContext = (dict["Context"] as? [String: String]) ?? [String: String]()
 
-        if let val = dict[ConfigKey.PostURLPrefix.rawValue] as? String {
+        if let val = dict[Config.PostURLPrefix.rawValue] as? String {
             postURLPrefix = val
         }
 
-        if let val = dict[ConfigKey.CategoryURLPrefix.rawValue] as? String {
+        if let val = dict[Config.CategoryURLPrefix.rawValue] as? String {
             categoryURLPrefix = val
         }
 
-        if let val = dict[ConfigKey.ArchiveURLPrefix.rawValue] as? String {
+        if let val = dict[Config.ArchiveURLPrefix.rawValue] as? String {
             archiveURLPrefix = val
         }
 
-        if let val = dict[ConfigKey.BaseURL.rawValue] as? String {
+        if let val = dict[Config.BaseURL.rawValue] as? String {
             baseURLStr = val.hasSuffix("/") ? val : "\(val)/"
         }
 
-        if let val = dict[ConfigKey.ShowPostExcerpts.rawValue] as? Bool {
+        if let val = dict[Config.ShowPostExcerpts.rawValue] as? Bool {
             usePostExcerpts = val
         }
 
-        if let val = dict[ConfigKey.PostsPerPage.rawValue] as? NSNumber {
+        if let val = dict[Config.PostsPerPage.rawValue] as? NSNumber {
             postsPerPage = val.intValue
         }
 
-        if let val = dict[ConfigKey.CalculateRelatedPosts.rawValue] as? Bool {
+        if let val = dict[Config.CalculateRelatedPosts.rawValue] as? Bool {
             calculateRelatedPosts = val
+        }
+
+        if let val = dict[Config.PHPPath.rawValue] as? String {
+            Website.phpPath = val
+        }
+
+        if let val = dict[Config.PygmentizePath.rawValue] as? String {
+            Website.pygmentizePath = val
         }
     }
 

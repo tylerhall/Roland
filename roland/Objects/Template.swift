@@ -71,9 +71,7 @@ if(is_array($ROLAND_CONTEXT)) {
         let stdin = Pipe()
         let stdout = Pipe()
 
-        // TODO: We need to auto-detect where php is in the user's $PATH,
-        // or maybe allow them to explicitly define the location themselves.
-        task.launchPath = "/usr/bin/php"
+        task.launchPath = Website.phpPath
         task.currentDirectoryURL = website.templateDirURL
         task.standardInput = stdin
         task.standardOutput = stdout
