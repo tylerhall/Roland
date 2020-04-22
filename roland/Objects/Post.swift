@@ -197,7 +197,7 @@ class Post {
     lazy var relatedPosts: [RelatedPost] = {
         
         // Play with these numbers to figure out what works best for your content.
-        let commonScoreMultiplier: Double = 2
+        let commonWordMultiplier: Double = 2
         let commonCategoryMultiplier = 75
         // NOTE: This has a *gigantic* impact on run time. 3 is currently my maximum.
         // I haven't yet looked into what stupid Big-Oh thing I'm doing to cause this.
@@ -218,7 +218,7 @@ class Post {
             if let hash = postToCompare.rawBodyHash, let vocabToCompare = website.vocabularies[hash], vocabToCompare.count > 0 {
                 let commonWordsCount = vocab.intersection(vocabToCompare).count
                 let scoreRatio = Double(commonWordsCount) / max(Double(vocabToCompare.count), Double(vocab.count))
-                let commonScore = Double(vocab.count + vocabToCompare.count) * scoreRatio * commonScoreMultiplier
+                let commonScore = Double(vocab.count + vocabToCompare.count) * scoreRatio * commonWordMultiplier
                 scoreSum += commonScore
             }
 
