@@ -30,7 +30,7 @@ class LayoutRSS: Layout {
         templateContext["meta"] = ["layout": "rss", "microtime": "\(startTime)"]
         templateContext["site"] = website.context
 
-        let postIDs = website.newestPostIDs[0..<10]
+        let postIDs = website.newestPostIDs[0..<min(10, website.newestPostIDs.count)]
         var postContexts = [[String: Any?]]()
         for id in postIDs {
             if let post = website.allPosts[id] {
