@@ -235,6 +235,11 @@ class Website {
                 continue
             }
 
+            let allowedExtensions = ["md", "mdown", "markdown", "txt"]
+            if !allowedExtensions.contains(fileURL.pathExtension) {
+                continue;
+            }
+
             do {
                 let fileContents = try String(contentsOf: fileURL)
                 let post = Post(fileContents: fileContents, id: postID, website: self)
