@@ -181,7 +181,7 @@ class Website {
 
         loadConfig()
 
-        operationQueue.maxConcurrentOperationCount = 12
+        operationQueue.maxConcurrentOperationCount = 1
         operationQueue.isSuspended = true
     }
 

@@ -13,6 +13,9 @@ struct RolandOptions: ParsableArguments {
     @Option(name: .shortAndLong, help: ArgumentHelp("The build output directory.", discussion: "If omitted, \"_www\" in the current directory will be used.\nIf the output directory does not exist, it will be created.", valueName: "directory"))
     var output: String?
 
+    @Option(name: .shortAndLong, help: ArgumentHelp("Number of threads to use.", discussion: "Default is twice the number of CPU cores.", valueName: "integer"))
+    var threads: Int?
+
     @Flag(help: "Only build posts.")
     var posts: Bool
 
@@ -106,6 +109,10 @@ if options.rss || buildEverything {
     website.buildRSSFeed()
 }
 
+let info = ProcessInfo()
+let threads = options.threads ?? (info.processorCount * 2)
+
+website.operationQueue.maxConcurrentOperationCount = threads
 website.operationQueue.isSuspended = false
 website.operationQueue.waitUntilAllOperationsAreFinished()
 
