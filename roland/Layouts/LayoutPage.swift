@@ -8,6 +8,7 @@ import Foundation
 class LayoutPage: Layout {
 
     var page: Page
+    var template: Template?
 
     var fileURL: URL {
         return page.website.outputDirURL.appendingPathComponent(page.path)
@@ -21,27 +22,22 @@ class LayoutPage: Layout {
         self.page = page
     }
     
-    func writeToDisk() {
+    func writeToDiskOperation() -> Operation? {
         do {
             try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            print("WARNING: Could not create post directory \(directoryURL)")
-            return
+            print("ERROR: Could not create post directory \(directoryURL)")
+            return nil
         }
         
-        var templateContext = [String: Any?]()
-        templateContext["meta"] = ["layout": "page", "microtime": "\(startTime)"]
-        templateContext["page"] = page.context
-        templateContext["site"] = page.website.context
+        template = Template(templateName: page.templateName, website: page.website)
+        template?.context["meta"] = ["layout": "page", "microtime": "\(startTime)"]
+        template?.context["page"] = page.context
+        template?.context["site"] = page.website.context
+        
+        let op = LayoutOperation()
+        op.layout = self
 
-        let template = Template(templateName: page.templateName, website: page.website)
-        if let output = template.render(context: templateContext) {
-            do {
-                try output.write(to: fileURL, atomically: true, encoding: .utf8)
-                totalPagesRendered += 1
-            } catch {
-                print("WARNING: Could not write page to \(fileURL.path)")
-            }
-        }
+        return op
     }
 }

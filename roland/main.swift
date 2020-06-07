@@ -106,6 +106,9 @@ if options.rss || buildEverything {
     website.buildRSSFeed()
 }
 
+website.operationQueue.isSuspended = false
+website.operationQueue.waitUntilAllOperationsAreFinished()
+
 let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
 print("---------")
 print("Finished!")

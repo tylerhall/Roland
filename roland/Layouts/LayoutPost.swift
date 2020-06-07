@@ -8,6 +8,7 @@ import Foundation
 class LayoutPost: Layout {
     
     var post: Post
+    var template: Template?
 
     init(post: Post) {
         self.post = post
@@ -17,25 +18,38 @@ class LayoutPost: Layout {
         return post.directoryURL.appendingPathComponent("index.html")
     }
 
-    func writeToDisk() {
+    func writeToDiskOperation() -> Operation? {
         do {
             try FileManager.default.createDirectory(at: post.directoryURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            print("WARNING: Could not create post directory \(post.directoryURL)")
-            return
+            print("ERROR: Could not create post directory \(post.directoryURL)")
+            return nil
         }
 
-        var templateContext = [String: Any?]()
-        templateContext["meta"] = ["layout": "post", "microtime": "\(startTime)"]
-        templateContext["post"] = post.context
+        template = Template(templateName: post.templateName, website: post.website)
+        template?.context["meta"] = ["layout": "post", "microtime": "\(startTime)"]
+        template?.context["post"] = post.context
 
-        let template = Template(templateName: post.templateName, website: post.website)
-        if let output = template.render(context: templateContext) {
+        let op = LayoutOperation()
+        op.layout = self
+
+        return op
+    }
+}
+
+class LayoutOperation: Operation {
+    
+    var layout: Layout?
+
+    override func main() {
+        guard let layout = layout else { return }
+        if let output = layout.template?.render(context: layout.template?.context) {
             do {
-                try output.write(to: fileURL, atomically: true, encoding: .utf8)
+                try output.write(to: layout.fileURL, atomically: true, encoding: .utf8)
                 totalPagesRendered += 1
+                print("CREATED: (\(totalPagesRendered)) \(layout.fileURL.path)")
             } catch {
-                print("WARNING: Could not write post to \(fileURL.path)")
+                print("ERROR: Could not write to \(layout.fileURL.path)")
             }
         }
     }

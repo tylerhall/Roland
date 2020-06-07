@@ -8,6 +8,7 @@ import Foundation
 class LayoutHome: Layout {
     
     var archive: Archive
+    var template: Template?
 
     var fileURL: URL {
         return archive.directoryURL.appendingPathComponent("index.html")
@@ -17,28 +18,23 @@ class LayoutHome: Layout {
         self.archive = archive
     }
 
-    func writeToDisk() {
+    func writeToDiskOperation() -> Operation? {
         let outDirURL = fileURL.deletingLastPathComponent()
         do {
             try FileManager.default.createDirectory(at: outDirURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            print("WARNING: Could not create archive directory \(outDirURL.path)")
-            return
+            print("ERROR: Could not create archive directory \(outDirURL.path)")
+            return nil
         }
 
-        var templateContext = [String: Any?]()
-        templateContext["meta"] = ["layout": "home", "microtime": "\(startTime)"]
-        templateContext["archive"] = archive.context
-        templateContext["site"] = archive.website.context
+        template = Template(templateName: archive.templateName, website: archive.website)
+        template?.context["meta"] = ["layout": "home", "microtime": "\(startTime)"]
+        template?.context["archive"] = archive.context
+        template?.context["site"] = archive.website.context
 
-        let template = Template(templateName: archive.templateName, website: archive.website)
-        if let output = template.render(context: templateContext) {
-            do {
-                try output.write(to: fileURL, atomically: true, encoding: .utf8)
-                totalPagesRendered += 1
-            } catch {
-                print("WARNING: Could not write home archive to \(fileURL.path)")
-            }
-        }
+        let op = LayoutOperation()
+        op.layout = self
+
+        return op
     }
 }

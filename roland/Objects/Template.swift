@@ -23,6 +23,7 @@ if(is_array($ROLAND_CONTEXT)) {
     var website: Website!
     var templateName: String
     var templateFileURL: URL
+    var context = [String: Any?]()
 
     init(templateFileURL: URL, website: Website) {
         self.website = website

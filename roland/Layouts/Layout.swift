@@ -8,6 +8,7 @@ import Foundation
 protocol Layout {
     
     var fileURL: URL { get }
+    var template: Template? { get set }
 
-    func writeToDisk()
+    func writeToDiskOperation() -> Operation?
 }

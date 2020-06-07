@@ -8,6 +8,7 @@ import Foundation
 class LayoutCategory: Layout {
 
     var category: Category
+    var template: Template?
 
     var fileURL: URL {
         return category.directoryURL.appendingPathComponent("index.html")
@@ -17,19 +18,19 @@ class LayoutCategory: Layout {
         self.category = category
     }
 
-    func writeToDisk() {
+    func writeToDiskOperation() -> Operation? {
         let outDirURL = fileURL.deletingLastPathComponent()
         do {
             try FileManager.default.createDirectory(at: outDirURL, withIntermediateDirectories: true, attributes: nil)
         } catch {
-            print("WARNING: Could not create category directory \(outDirURL.path)")
-            return
+            print("ERROR: Could not create category directory \(outDirURL.path)")
+            return nil
         }
 
-        var templateContext = [String: Any?]()
-        templateContext["meta"] = ["layout": "category", "microtime": "\(startTime)"]
-        templateContext["category"] = category.context
-        templateContext["site"] = category.website.context
+        template = Template(templateName: category.templateName, website: category.website)
+        template?.context["meta"] = ["layout": "category", "microtime": "\(startTime)"]
+        template?.context["category"] = category.context
+        template?.context["site"] = category.website.context
 
         // We're gonna sort the category's posts and child category posts
         // right here rather than within the .context call to save duplicating
@@ -40,16 +41,11 @@ class LayoutCategory: Layout {
             return a.date > b.date
         }
         let postContexts = posts.compactMap { $0.context }
-        templateContext["posts"] = ["posts": postContexts] // This is dumb. Need a cleaner solution to push to PHP-land.
+        template?.context["posts"] = ["posts": postContexts] // This is dumb. Need a cleaner solution to push to PHP-land.
+ 
+        let op = LayoutOperation()
+        op.layout = self
 
-        let template = Template(templateName: category.templateName, website: category.website)
-        if let output = template.render(context: templateContext) {
-            do {
-                try output.write(to: fileURL, atomically: true, encoding: .utf8)
-                totalPagesRendered += 1
-            } catch {
-                print("WARNING: Could not write catgegory to \(fileURL.path)")
-            }
-        }
+        return op
     }
 }

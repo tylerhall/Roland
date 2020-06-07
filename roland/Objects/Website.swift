@@ -68,6 +68,8 @@ class Website {
     static var phpPath = "/usr/bin/php"
     static var pygmentizePath = "/usr/local/bin/pygmentize"
 
+    var operationQueue = OperationQueue()
+    
     var plistURL: URL!
     var projectDirURL: URL!
     var outputDirURL: URL!
@@ -178,6 +180,9 @@ class Website {
         }
 
         loadConfig()
+
+        operationQueue.maxConcurrentOperationCount = 12
+        operationQueue.isSuspended = true
     }
 
     func loadConfig() {
@@ -223,7 +228,7 @@ class Website {
     }
 
     func loadAllPosts() {
-        guard postsDirURL.isAccessibleDirectory else { print("WARNING: Posts directory is not readable: \(postsDirURL.path)"); return }
+        guard postsDirURL.isAccessibleDirectory else { print("ERROR: Posts directory is not readable: \(postsDirURL.path)"); return }
 
         allPosts.removeAll()
 
@@ -231,7 +236,7 @@ class Website {
         let files = try! FileManager.default.contentsOfDirectory(at: postsDirURL, includingPropertiesForKeys: nil, options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
         for fileURL in files {
             if !fileURL.isAccessibleFile {
-                fatalError("WARNING: \(fileURL.path) is not accessible")
+                fatalError("ERROR: \(fileURL.path) is not accessible")
                 continue
             }
 
@@ -245,7 +250,7 @@ class Website {
                 let post = Post(fileContents: fileContents, id: postID, website: self)
                 allPosts[postID] = post
             } catch {
-                fatalError("WARNING: Could not read \(fileURL.path)")
+                fatalError("ERROR: Could not read \(fileURL.path)")
             }
 
             postID += 1
@@ -279,7 +284,7 @@ class Website {
     }
 
     func loadAllPages() {
-        guard pagesDirURL.isAccessibleDirectory else { print("WARNING: Pages directory is not readable: \(pagesDirURL.path)"); return }
+        guard pagesDirURL.isAccessibleDirectory else { print("ERROR: Pages directory is not readable: \(pagesDirURL.path)"); return }
 
         let files = try! FileManager.default.contentsOfDirectory(at: pagesDirURL, includingPropertiesForKeys: nil, options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
         for fileURL in files {
@@ -373,7 +378,7 @@ class Website {
             do {
                 try FileManager.default.removeItem(at: fileURL)
             } catch {
-                print("WARNING: Could not clean item from output directory \(fileURL.path)")
+                print("ERROR: Could not clean item from output directory \(fileURL.path)")
             }
         }
     }
@@ -390,7 +395,7 @@ class Website {
     }
 
     func copyPublicAssets() {
-        guard publicDirURL.isAccessibleDirectory else { print("WARNING: Public assets directory is not accessible \(publicDirURL.path)"); return }
+        guard publicDirURL.isAccessibleDirectory else { print("ERROR: Public assets directory is not accessible \(publicDirURL.path)"); return }
         
         print("Copying public assets")
 
@@ -418,7 +423,9 @@ class Website {
                 print("Post \(soFar): \(post.date) - \(post.title ?? "Untitled")")
 
                 let layout = LayoutPost(post: post)
-                layout.writeToDisk()
+                if let op = layout.writeToDiskOperation() {
+                    operationQueue.addOperation(op)
+                }
             }
 
             i += 1
@@ -436,7 +443,9 @@ class Website {
             print("Page \(soFar): \(p.title ?? "Untitled")")
 
             let layout = LayoutPage(page: p)
-            layout.writeToDisk()
+            if let op = layout.writeToDiskOperation() {
+                operationQueue.addOperation(op)
+            }
 
             i += 1
         }
@@ -454,7 +463,9 @@ class Website {
             print("Archive \(soFar): \(soFar2)")
 
             let layout = LayoutHome(archive: a)
-            layout.writeToDisk()
+            if let op = layout.writeToDiskOperation() {
+                operationQueue.addOperation(op)
+            }
         }
     }
 
@@ -469,7 +480,9 @@ class Website {
             print("Category \(soFar): \(c.name)")
 
             let layout = LayoutCategory(category: c)
-            layout.writeToDisk()
+            if let op = layout.writeToDiskOperation() {
+                operationQueue.addOperation(op)
+            }
 
             i += 1
         }
@@ -512,7 +525,9 @@ class Website {
             }
 
             let layout = LayoutDate(startDate: startOfMonth, endDate: endOfMonth, posts: posts, website: website)
-            layout.writeToDisk()
+            if let op = layout.writeToDiskOperation() {
+                operationQueue.addOperation(op)
+            }
 
             i += 1
         }
@@ -524,6 +539,8 @@ class Website {
         print("-----------------------------")
 
         let layout = LayoutRSS(website: self)
-        layout.writeToDisk()
+        if let op = layout.writeToDiskOperation() {
+            operationQueue.addOperation(op)
+        }
     }
 }
