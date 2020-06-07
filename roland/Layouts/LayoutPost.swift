@@ -47,7 +47,7 @@ class LayoutOperation: Operation {
             do {
                 try output.write(to: layout.fileURL, atomically: true, encoding: .utf8)
                 totalPagesRendered += 1
-                print("CREATED: (\(totalPagesRendered)) \(layout.fileURL.path)")
+                print("CREATED #\(totalPagesRendered) (\(operationQueue.operationCount) remaining): \(layout.fileURL.path)")
             } catch {
                 print("ERROR: Could not write to \(layout.fileURL.path)")
             }

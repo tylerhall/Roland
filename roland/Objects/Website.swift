@@ -68,8 +68,6 @@ class Website {
     static var phpPath = "/usr/bin/php"
     static var pygmentizePath = "/usr/local/bin/pygmentize"
 
-    var operationQueue = OperationQueue()
-    
     var plistURL: URL!
     var projectDirURL: URL!
     var outputDirURL: URL!
@@ -180,9 +178,6 @@ class Website {
         }
 
         loadConfig()
-
-        operationQueue.maxConcurrentOperationCount = 1
-        operationQueue.isSuspended = true
     }
 
     func loadConfig() {

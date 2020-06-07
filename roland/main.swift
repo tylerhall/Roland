@@ -53,6 +53,8 @@ let projectURL = plistURL.deletingLastPathComponent()
 let outputURL = (outputPath == nil) ? projectURL.appendingPathComponent("_www") : URL(fileURLWithPath: outputPath!)
 
 let website = Website(plistURL: plistURL, projectDirURL: projectURL, outputDirURL: outputURL)
+let operationQueue = OperationQueue()
+operationQueue.isSuspended = true
 
 print("Config: \(website.plistURL.path)")
 print("Project: \(website.projectDirURL.path)")
@@ -109,12 +111,9 @@ if options.rss || buildEverything {
     website.buildRSSFeed()
 }
 
-let info = ProcessInfo()
-let threads = options.threads ?? (info.processorCount * 2)
-
-website.operationQueue.maxConcurrentOperationCount = threads
-website.operationQueue.isSuspended = false
-website.operationQueue.waitUntilAllOperationsAreFinished()
+operationQueue.maxConcurrentOperationCount = options.threads ?? (ProcessInfo().processorCount * 2)
+operationQueue.isSuspended = false
+operationQueue.waitUntilAllOperationsAreFinished()
 
 let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
 print("---------")
