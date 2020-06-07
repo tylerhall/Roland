@@ -34,6 +34,9 @@ struct RolandOptions: ParsableArguments {
     @Flag(help: "Only build RSS feed.")
     var rss: Bool
 
+    @Flag(help: "Only build JSON feed.")
+    var json: Bool
+
     @Flag(help: ArgumentHelp("Don't copy \"_public\" directory.", discussion: "If set, the contents of the \"_public\" directory will not be copied into the output directory."))
     var noPublic: Bool
 
@@ -109,6 +112,10 @@ if options.dates || buildEverything {
 
 if options.rss || buildEverything {
     website.buildRSSFeed()
+}
+
+if options.rss || buildEverything {
+    website.buildJSONFeed()
 }
 
 operationQueue.maxConcurrentOperationCount = options.threads ?? (ProcessInfo().processorCount * 2)

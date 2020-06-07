@@ -538,4 +538,15 @@ class Website {
             operationQueue.addOperation(op)
         }
     }
+
+    func buildJSONFeed() {
+        print("-----------------------------")
+        print("Building JSON feed...")
+        print("-----------------------------")
+
+        let layout = LayoutJSONFeed(website: self)
+        if let op = layout.writeToDiskOperation() {
+            operationQueue.addOperation(op)
+        }
+    }
 }
