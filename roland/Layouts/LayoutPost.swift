@@ -28,7 +28,6 @@ class LayoutPost: Layout {
         var templateContext = [String: Any?]()
         templateContext["meta"] = ["layout": "post", "microtime": "\(startTime)"]
         templateContext["post"] = post.context
-        templateContext["site"] = post.website.context
 
         let template = Template(templateName: post.templateName, website: post.website)
         if let output = template.render(context: templateContext) {
