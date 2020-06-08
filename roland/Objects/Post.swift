@@ -53,8 +53,15 @@ class Post {
         context["slug"] = slug
         context["excerpt"] = excerpt
         context["permalink"] = permalink
-        context["previous_post_id"] = previousPostID
-        context["next_post_id"] = nextPostID
+        
+        if let id = previousPostID, let post = website.allPosts[id] {
+            context["previous_post"] = RelatedPost.fromPost(post: post, score: 0).context
+        }
+
+        if let id = nextPostID, let post = website.allPosts[id] {
+            context["next_post"] = RelatedPost.fromPost(post: post, score: 0).context
+        }
+
         context["content"] = body
         context["categories"] = categories
 
@@ -264,7 +271,7 @@ class Post {
 
             scoreSum += Double(commonCategoryCount * commonCategoryMultiplier)
 
-            let relatedPost = RelatedPost(postID: postToCompare.id, score: scoreSum)
+            var relatedPost = RelatedPost.fromPost(post: postToCompare, score: scoreSum)
             relatedPosts.append(relatedPost)
         }
 
@@ -304,8 +311,17 @@ struct RelatedPost {
     var stdDevRatio: Double?
     var normalizedScore: Double?
     var isManual = false
+    var title: String?
+    var permalink: String = ""
 
     var context: [String: Any?] {
-        return ["id": postID, "score": normalizedScore]
+        return ["id": postID, "score": normalizedScore, "title": title, "permalink": permalink]
+    }
+    
+    static func fromPost(post: Post, score: Double) -> RelatedPost {
+        var relatedPost = RelatedPost(postID: post.id, score: score)
+        relatedPost.title = post.title
+        relatedPost.permalink = post.permalink
+        return relatedPost
     }
 }

@@ -30,6 +30,11 @@ class LayoutPost: Layout {
         template?.context["meta"] = ["layout": "post", "microtime": "\(startTime)"]
         template?.context["post"] = post.context
 
+        // This is a dumb fix to keep memory from exploding as the website context recurses into every other post context...
+        var siteContext = post.website.context
+        siteContext[Website.Config.Posts.rawValue] = nil
+        template?.context["site"] = siteContext
+
         let op = LayoutOperation()
         op.layout = self
 
