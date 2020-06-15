@@ -9,9 +9,9 @@ class LayoutRSS: Layout {
 
     var website: Website
     var template: Template?
-    
+
     var fileURL: URL {
-        return website.outputDirURL.appendingPathComponent("feed").appendingPathComponent("index.html")
+        return website.outputDirURL.appendingPathComponent("rss").appendingPathExtension("xml")
     }
     
     init(website: Website) {
