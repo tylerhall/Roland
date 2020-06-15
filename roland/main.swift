@@ -37,6 +37,12 @@ struct RolandOptions: ParsableArguments {
     @Flag(help: "Only build JSON feed.")
     var json: Bool
 
+    @Flag(help: "Only build Atom feed.")
+    var atom: Bool
+
+    @Flag(help: "Only build syndication feeds.")
+    var feeds: Bool
+
     @Flag(help: ArgumentHelp("Don't copy \"_public\" directory.", discussion: "If set, the contents of the \"_public\" directory will not be copied into the output directory."))
     var noPublic: Bool
 
@@ -86,7 +92,7 @@ if !options.noPublic {
 var totalPagesRendered = 0
 
 var buildEverything = true
-if options.posts || options.pages || options.home || options.categories || options.dates || options.rss {
+if options.posts || options.pages || options.home || options.categories || options.dates || options.rss || options.json || options.atom || options.feeds {
     buildEverything = false
 }
 
@@ -110,12 +116,16 @@ if options.dates || buildEverything {
     website.buildDateArchives()
 }
 
-if options.rss || buildEverything {
+if options.rss || options.feeds || buildEverything {
     website.buildRSSFeed()
 }
 
-if options.rss || buildEverything {
+if options.json || options.feeds || buildEverything {
     website.buildJSONFeed()
+}
+
+if options.atom || options.feeds || buildEverything {
+    website.buildAtomFeed()
 }
 
 operationQueue.maxConcurrentOperationCount = options.threads ?? (ProcessInfo().processorCount * 2)

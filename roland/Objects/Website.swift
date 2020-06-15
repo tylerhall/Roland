@@ -539,6 +539,17 @@ class Website {
         }
     }
 
+    func buildAtomFeed() {
+        print("-----------------------------")
+        print("Building Atom feed...")
+        print("-----------------------------")
+
+        let layout = LayoutAtom(website: self)
+        if let op = layout.writeToDiskOperation() {
+            operationQueue.addOperation(op)
+        }
+    }
+
     func buildJSONFeed() {
         print("-----------------------------")
         print("Building JSON feed...")
