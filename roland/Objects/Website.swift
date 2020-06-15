@@ -560,4 +560,15 @@ class Website {
             operationQueue.addOperation(op)
         }
     }
+
+    func buildSitemapXML() {
+        print("-----------------------------")
+        print("Building XML Sitemap...")
+        print("-----------------------------")
+
+        let layout = LayoutSitemapXML(website: self)
+        if let op = layout.writeToDiskOperation() {
+            operationQueue.addOperation(op)
+        }
+    }
 }

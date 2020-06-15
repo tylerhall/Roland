@@ -43,6 +43,9 @@ struct RolandOptions: ParsableArguments {
     @Flag(help: "Only build syndication feeds.")
     var feeds: Bool
 
+    @Flag(help: "Only build sitemap.")
+    var sitemap: Bool
+
     @Flag(help: ArgumentHelp("Don't copy \"_public\" directory.", discussion: "If set, the contents of the \"_public\" directory will not be copied into the output directory."))
     var noPublic: Bool
 
@@ -92,7 +95,7 @@ if !options.noPublic {
 var totalPagesRendered = 0
 
 var buildEverything = true
-if options.posts || options.pages || options.home || options.categories || options.dates || options.rss || options.json || options.atom || options.feeds {
+if options.posts || options.pages || options.home || options.categories || options.dates || options.rss || options.json || options.atom || options.feeds || options.sitemap {
     buildEverything = false
 }
 
@@ -126,6 +129,10 @@ if options.json || options.feeds || buildEverything {
 
 if options.atom || options.feeds || buildEverything {
     website.buildAtomFeed()
+}
+
+if options.sitemap || buildEverything {
+    website.buildSitemapXML()
 }
 
 operationQueue.maxConcurrentOperationCount = options.threads ?? (ProcessInfo().processorCount * 2)
