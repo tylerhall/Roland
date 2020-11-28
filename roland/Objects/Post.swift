@@ -136,7 +136,7 @@ class Post {
                 rawBody = "\(rawBody)\n\(line)"
             }
         }
-        rawBodyHash = rawBody.md5
+        rawBodyHash = rawBody.sha256
 
         if highlightWithPygments {
             body = rawBody.pygmentizeDown(identifier: "Body for \"" + (title ?? "Unkown") + "\"")

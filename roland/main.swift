@@ -17,40 +17,40 @@ struct RolandOptions: ParsableArguments {
     var threads: Int?
 
     @Flag(help: "Only build posts.")
-    var posts: Bool
+    var posts: Bool = false
 
     @Flag(help: "Only build pages.")
-    var pages: Bool
+    var pages: Bool = false
 
     @Flag(help: "Only build home archives.")
-    var home: Bool
+    var home: Bool = false
 
     @Flag(help: "Only build date archives.")
-    var dates: Bool
+    var dates: Bool = false
 
     @Flag(help: "Only build category archives.")
-    var categories: Bool
+    var categories: Bool = false
 
     @Flag(help: "Only build RSS feed.")
-    var rss: Bool
+    var rss: Bool = false
 
     @Flag(help: "Only build JSON feed.")
-    var json: Bool
+    var json: Bool = false
 
     @Flag(help: "Only build Atom feed.")
-    var atom: Bool
+    var atom: Bool = false
 
     @Flag(help: "Only build syndication feeds.")
-    var feeds: Bool
+    var feeds: Bool = false
 
     @Flag(help: "Only build sitemap.")
-    var sitemap: Bool
+    var sitemap: Bool = false
 
     @Flag(help: ArgumentHelp("Don't copy \"_public\" directory.", discussion: "If set, the contents of the \"_public\" directory will not be copied into the output directory."))
-    var noPublic: Bool
+    var noPublic: Bool = false
 
     @Flag(help: ArgumentHelp("Don't clean the output directory.", discussion: "If set, the contents of the outpupt directory will not be deleted prior to building."))
-    var noClean: Bool
+    var noClean: Bool = false
 }
 
 let startTime = CFAbsoluteTimeGetCurrent()

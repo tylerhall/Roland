@@ -25,14 +25,13 @@ extension String {
         return (results.count > 0) ? [self] : results
     }
 
-    var md5: String {
+    var sha256: String {
         let data = Data(self.utf8)
-        let hash = data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) -> [UInt8] in
-            var hash = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
-            CC_MD5(bytes.baseAddress, CC_LONG(data.count), &hash)
-            return hash
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
         }
-        return hash.map { String(format: "%02x", $0) }.joined()
+        return String(data: Data(hash), encoding: .utf8)!
     }
 
     func frontMatterKeyVal() -> (String, String?) {
