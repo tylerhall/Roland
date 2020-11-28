@@ -292,7 +292,7 @@ class Website {
                 let page = Page(fileContents: fileContents, website: self)
                 pages.append(page)
             } catch {
-                
+                print(error)
             }
         }
     }

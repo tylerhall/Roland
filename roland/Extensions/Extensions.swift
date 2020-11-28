@@ -26,12 +26,30 @@ extension String {
     }
 
     var sha256: String {
-        let data = Data(self.utf8)
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-        data.withUnsafeBytes {
-            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
+
+        func digest(input : NSData) -> NSData {
+            let digestLength = Int(CC_SHA256_DIGEST_LENGTH)
+            var hash = [UInt8](repeating: 0, count: digestLength)
+            CC_SHA256(input.bytes, UInt32(input.length), &hash)
+            return NSData(bytes: hash, length: digestLength)
         }
-        return String(data: Data(hash), encoding: .utf8)!
+
+        func hexStringFromData(input: NSData) -> String {
+            var bytes = [UInt8](repeating: 0, count: input.length)
+            input.getBytes(&bytes, length: input.length)
+
+            var hexString = ""
+            for byte in bytes {
+                hexString += String(format:"%02x", UInt8(byte))
+            }
+
+            return hexString
+        }
+
+        if let stringData = self.data(using: String.Encoding.utf8) {
+            return hexStringFromData(input: digest(input: stringData as NSData))
+        }
+        return ""
     }
 
     func frontMatterKeyVal() -> (String, String?) {

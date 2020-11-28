@@ -49,9 +49,9 @@ class Page {
         var foundEndOfFrontMatter = false
         while !foundEndOfFrontMatter {
             if lines.count == 0 {
-                foundEndOfFrontMatter = true
+                break
             }
-            
+    
             let line = lines.remove(at: 0)
             if line.hasPrefix("---") {
                 foundEndOfFrontMatter = true

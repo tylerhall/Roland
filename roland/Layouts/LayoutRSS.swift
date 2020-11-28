@@ -27,7 +27,7 @@ class LayoutRSS: Layout {
             return nil
         }
 
-        template = Template(templateName: "RSS", website: website)
+        template = Template(templateName: "rss", website: website)
         template?.context = [String: Any?]()
         template?.context["meta"] = ["layout": "rss", "microtime": "\(startTime)"]
         template?.context["site"] = website.context
